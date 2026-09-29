@@ -381,18 +381,35 @@ function keyboardSortSite(event) {
   moved?.focus();
 }
 
+const COUNTRY_NAMES = {
+  HK: "Hong Kong", CN: "China", MO: "Macao", TW: "Taiwan", US: "United States",
+  JP: "Japan", KR: "South Korea", SG: "Singapore", GB: "United Kingdom", DE: "Germany",
+  FR: "France", CA: "Canada", AU: "Australia", MY: "Malaysia", TH: "Thailand", VN: "Vietnam",
+  IN: "India", RU: "Russia", NL: "Netherlands", IT: "Italy", ES: "Spain"
+};
+
 async function lookupNetwork() {
-  try {
-    const response = await fetch("https://ipapi.co/json/", { headers: { Accept: "application/json" } });
-    if (!response.ok) throw new Error();
-    const data = await response.json();
-    $("#locationText").textContent = `${data.country_name || "未知国家"} · ${data.city || "未知城市"}`;
-    $("#ipText").textContent = data.ip || "未知";
-  } catch {
-    $("#locationText").textContent = "位置暂不可用";
-    $("#ipText").textContent = "获取失败";
-    $("#networkStatus").classList.add("offline");
+  const providers = [
+    { url: "https://ipwho.is/", ip: d => d.ip, country: d => d.country, city: d => d.city },
+    { url: "https://speed.cloudflare.com/meta", ip: d => d.clientIp, country: d => COUNTRY_NAMES[d.country] || d.country, city: d => d.city },
+    { url: "https://ipinfo.io/json", ip: d => d.ip, country: d => COUNTRY_NAMES[d.country] || d.country, city: d => d.city }
+  ];
+  for (const p of providers) {
+    try {
+      const response = await fetch(p.url, { headers: { Accept: "application/json" } });
+      if (!response.ok) throw new Error();
+      const data = await response.json();
+      const ip = p.ip(data);
+      if (!ip) throw new Error();
+      $("#locationText").textContent = `${p.country(data) || "未知国家"} · ${p.city(data) || "未知城市"}`;
+      $("#ipText").textContent = ip;
+      $("#networkStatus").classList.remove("offline");
+      return;
+    } catch { /* 换下一个接口 */ }
   }
+  $("#locationText").textContent = "位置暂不可用";
+  $("#ipText").textContent = "获取失败";
+  $("#networkStatus").classList.add("offline");
 }
 
 async function runSpeedTest() {
