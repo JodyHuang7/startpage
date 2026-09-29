@@ -1,0 +1,161 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="简洁、可自定义的个人导航页">
+  <meta name="color-scheme" content="light">
+  <title>导航页</title>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='18' fill='%234a9eb4'/%3E%3Cpath d='M18 33h28M34 20l13 13-13 13' fill='none' stroke='white' stroke-width='6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="background" aria-hidden="true"></div>
+  <main class="shell">
+    <header class="utility-bar">
+      <p class="motto" id="mottoText">日拱一卒，静水流深。</p>
+      <button class="icon-button" id="settingsButton" type="button" aria-label="打开设置" title="设置">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 15.5A3.5 3.5 0 1 0 12 8a3.5 3.5 0 0 0 0 7.5Zm8.1-2.2 1.4 1.1-2 3.5-1.8-.7a8 8 0 0 1-2.1 1.2l-.3 1.9h-4l-.3-1.9a8 8 0 0 1-2.1-1.2l-1.8.7-2-3.5 1.4-1.1a8 8 0 0 1 0-2.5L5.1 9.7l2-3.5 1.8.7A8 8 0 0 1 11 5.7l.3-1.9h4l.3 1.9a8 8 0 0 1 2.1 1.2l1.8-.7 2 3.5-1.4 1.1a8 8 0 0 1 0 2.5Z"/></svg>
+      </button>
+    </header>
+
+    <section class="hero" aria-label="网页搜索">
+      <form class="search" id="searchForm" role="search">
+        <label class="sr-only" for="searchInput">搜索内容</label>
+        <svg class="search-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="m16 16 4 4"></path></svg>
+        <input id="searchInput" name="q" type="search" autocomplete="off" placeholder="搜索网页">
+        <div class="engine-switch" id="engineSwitch" aria-label="选择搜索引擎"></div>
+      </form>
+    </section>
+
+    <section class="widgets" aria-label="实用组件">
+      <article class="widget network-card">
+        <div class="widget-head">
+          <h2 id="locationText">正在获取位置…</h2>
+          <span class="status-dot" id="networkStatus" aria-label="在线"></span>
+        </div>
+        <div class="network-meta">
+          <div><span>公网 IP</span><strong id="ipText">—</strong></div>
+          <div><span>下载速度</span><strong id="speedText">未测速</strong></div>
+        </div>
+        <button class="soft-button" id="speedButton" type="button">开始测速</button>
+      </article>
+
+      <article class="widget recent-card">
+        <div class="widget-head">
+          <h2>最近访问</h2>
+          <button class="text-button" id="clearRecent" type="button">清空</button>
+        </div>
+        <div class="recent-list" id="recentList"></div>
+      </article>
+    </section>
+
+    <section class="navigation" aria-labelledby="navigationTitle">
+      <div class="section-head">
+        <h2 id="navigationTitle">网站导航</h2>
+        <button class="primary-button compact" id="manageButton" type="button">网站管理</button>
+      </div>
+      <div id="categoryList" class="category-list"></div>
+    </section>
+  </main>
+
+  <div class="backdrop" id="backdrop" hidden></div>
+
+  <aside class="settings-panel" id="settingsPanel" aria-labelledby="settingsTitle" aria-hidden="true">
+    <div class="panel-head">
+      <h2 id="settingsTitle">设置</h2>
+      <button class="close-button" id="closeSettings" type="button" aria-label="关闭设置">×</button>
+    </div>
+
+    <div class="settings-body">
+      <section class="setting-group">
+        <h3>首页文字</h3>
+        <label class="sr-only" for="mottoInput">首页文字</label>
+        <input id="mottoInput" type="text" maxlength="40" placeholder="输入一句话">
+        <button class="soft-button" id="saveMottoButton" type="button">保存文字</button>
+      </section>
+
+      <section class="setting-group">
+        <h3>搜索引擎</h3>
+        <p>可设置任意两个搜索引擎，搜索网址需要保留 <code>{query}</code>。</p>
+        <div class="engine-setting">
+          <img id="engine1Preview" alt="">
+          <div>
+            <label>名称<input id="engine1Name" type="text" maxlength="20"></label>
+            <label>搜索网址<input id="engine1Url" type="url" spellcheck="false"></label>
+          </div>
+        </div>
+        <div class="engine-setting">
+          <img id="engine2Preview" alt="">
+          <div>
+            <label>名称<input id="engine2Name" type="text" maxlength="20"></label>
+            <label>搜索网址<input id="engine2Url" type="url" spellcheck="false"></label>
+          </div>
+        </div>
+        <button class="soft-button" id="saveEnginesButton" type="button">保存搜索引擎</button>
+      </section>
+
+      <section class="setting-group">
+        <h3>背景</h3>
+        <div class="preset-list" aria-label="iMac 系列背景色">
+          <button type="button" class="preset imac-blue" data-color="#9ccfea" aria-label="iMac 蓝"></button>
+          <button type="button" class="preset imac-green" data-color="#b7d7c0" aria-label="iMac 绿"></button>
+          <button type="button" class="preset imac-pink" data-color="#efbfd1" aria-label="iMac 粉"></button>
+          <button type="button" class="preset imac-purple" data-color="#c9b9df" aria-label="iMac 紫"></button>
+          <button type="button" class="preset imac-orange" data-color="#f4c49e" aria-label="iMac 橙"></button>
+          <button type="button" class="preset imac-yellow" data-color="#f4dda1" aria-label="iMac 黄"></button>
+          <button type="button" class="preset imac-silver" data-color="#d9dde2" aria-label="iMac 银"></button>
+        </div>
+        <label class="color-row">自定义颜色<input id="backgroundColor" type="color" value="#9ccfea"></label>
+        <label class="file-button">上传背景图片<input id="backgroundFile" type="file" accept="image/*"></label>
+        <div class="range-row"><label for="overlayRange">图片遮罩</label><output id="overlayValue">18%</output></div>
+        <input id="overlayRange" type="range" min="0" max="70" value="18">
+        <button class="text-button danger-text" id="removeBackgroundImage" type="button">移除背景图片</button>
+      </section>
+
+      <section class="setting-group">
+        <h3>打开方式</h3>
+        <label class="switch-row"><span>网站在新标签页打开</span><input id="newTabToggle" type="checkbox"></label>
+      </section>
+
+      <section class="setting-group">
+        <h3>备份与恢复</h3>
+        <div class="button-row">
+          <button class="soft-button" id="exportButton" type="button">导出配置</button>
+          <label class="soft-button file-button inline">导入配置<input id="importFile" type="file" accept="application/json,.json"></label>
+        </div>
+        <button class="text-button danger-text" id="resetButton" type="button">恢复默认设置</button>
+      </section>
+    </div>
+  </aside>
+
+  <dialog class="manager-dialog" id="managerDialog">
+    <div class="panel-head">
+      <h2>网站管理</h2>
+      <button class="close-button" id="managerClose" type="button" aria-label="关闭网站管理">×</button>
+    </div>
+    <div class="manager-toolbar">
+      <span>分类与网站</span>
+      <button class="primary-button compact" id="managerAddCategory" type="button">添加分类</button>
+    </div>
+    <div class="manager-list" id="managerList"></div>
+  </dialog>
+
+  <dialog class="dialog" id="editorDialog">
+    <form id="editorForm">
+      <div class="panel-head">
+        <h2 id="dialogTitle">添加网站</h2>
+        <button class="close-button" id="dialogClose" type="button" aria-label="关闭">×</button>
+      </div>
+      <div class="dialog-fields" id="dialogFields"></div>
+      <div class="dialog-actions">
+        <button class="soft-button" id="dialogCancel" type="button">取消</button>
+        <button class="primary-button" type="submit">保存</button>
+      </div>
+    </form>
+  </dialog>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  <script src="app.js"></script>
+</body>
+</html>
